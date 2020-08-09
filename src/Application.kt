@@ -26,7 +26,9 @@ fun Application.module(testing: Boolean = false) {
     install(Koin) {
         modules(serviceModule)
     }
+
     val userService by inject<UserService>()
+
     routing {
         route("/api/v1/users") {
 
