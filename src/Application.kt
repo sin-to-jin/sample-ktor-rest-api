@@ -10,6 +10,7 @@ import io.ktor.jackson.jackson
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import org.jetbrains.exposed.sql.Database
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 
@@ -26,6 +27,9 @@ fun Application.module(testing: Boolean = false) {
     install(Koin) {
         modules(serviceModule)
     }
+    Database.connect(
+        "jdbc:postgresql://localhost:5432/a_pags_backend_development",
+        driver = "org.postgresql.Driver", user = "jin", password = "password")
 
     val userService by inject<UserService>()
 
@@ -44,6 +48,9 @@ fun Application.module(testing: Boolean = false) {
         }
         get("/") {
             call.respondText("Hello, World")
+        }
+        get("/ping") {
+            call.respondText("Pong")
         }
    }
 }
