@@ -5,10 +5,12 @@ buildscript {
     
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.koin:koin-gradle-plugin:$koin_version"
     }
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'koin'
 apply plugin: 'application'
 
 group 'com.a_pags_server'
@@ -22,6 +24,11 @@ sourceSets {
     test.resources.srcDirs = ['testresources']
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
 repositories {
     mavenLocal()
     jcenter()
@@ -36,5 +43,6 @@ dependencies {
     implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-apache:$ktor_version"
     implementation "io.ktor:ktor-jackson:$ktor_version"
+    implementation "org.koin:koin-ktor:$koin_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
