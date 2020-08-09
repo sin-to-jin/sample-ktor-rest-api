@@ -6,24 +6,13 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun defaultUser(): UserDTO {
-    return UserDTO(
-        0,
-        "NO NAME",
-        "NO HOMETOWN",
-        "NO RESIDENCE",
-        "NO EDUCATION",
-        "NO JOB"
-    )
-}
-
 data class UserDTO(
-    val id: Int,
-    val fullName: String,
-    val hometown: String,
-    val residence: String,
-    val education: String,
-    val job: String
+    val id: Int = 0,
+    val fullName: String = "NO NAME",
+    val hometown: String = "NO HOMETOWN",
+    val residence: String = "NO RESIDENCE",
+    val education: String = "NO EDUCATION",
+    val job: String = "NO JOB"
 )
 object Users: IntIdTable() {
     val fullName = varchar("full_name", 256)
@@ -56,18 +45,15 @@ class UserEntity(id: EntityID<Int>): IntEntity(id) {
 class UserDao {
 
     fun findAll(): List<UserDTO> {
-        val users: List<UserDTO> = transaction {
-            val users = UserEntity.all().map { it.entity2dto() }
-            return@transaction users
+        return transaction {
+            return@transaction UserEntity.all().map { it.entity2dto() }
         }
-        return users
     }
 
     fun findById(id: Int = 0): UserDTO {
-        val user = transaction {
+        return transaction {
             val user = UserEntity.findById(id)?.entity2dto()
-            return@transaction user
+            return@transaction user ?: UserDTO()
         }
-        return user ?: defaultUser()
     }
 }
