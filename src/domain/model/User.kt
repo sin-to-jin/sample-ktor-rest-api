@@ -1,27 +1,27 @@
 package com.a_pags_server.domain.model
 
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.transactions.transaction
 
 data class UserDTO(
-    val id: Int = 0,
+    val id: Long = 0L,
     val fullName: String = "NO NAME",
     val hometown: String = "NO HOMETOWN",
     val residence: String = "NO RESIDENCE",
     val education: String = "NO EDUCATION",
     val job: String = "NO JOB"
 )
-object Users: IntIdTable() {
+object Users: LongIdTable() {
     val fullName = varchar("full_name", 256)
     val hometown = varchar("hometown", 256)
     val residence = varchar("residence", 256)
     val education = varchar("education", 256)
     val job = varchar("job", 256)
 }
-class UserEntity(id: EntityID<Int>): IntEntity(id) {
+class UserEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: IntEntityClass<UserEntity>(Users)
     var fullName by Users.fullName
     var hometown by Users.hometown
@@ -42,18 +42,19 @@ class UserEntity(id: EntityID<Int>): IntEntity(id) {
     }
 }
 
-class UserDao {
+class UserDao: Dao<UserDTO> {
 
-    fun findAll(): List<UserDTO> {
+    override fun findAll(): List<UserDTO> {
         return transaction {
             return@transaction UserEntity.all().map { it.entity2dto() }
         }
     }
 
-    fun findById(id: Int = 0): UserDTO {
+    override fun findById(id: Long): UserDTO {
         return transaction {
             val user = UserEntity.findById(id)?.entity2dto()
             return@transaction user ?: UserDTO()
         }
     }
 }
+
