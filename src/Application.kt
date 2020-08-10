@@ -2,10 +2,14 @@ package com.a_pags_server
 
 import com.a_pags_server.application.service.UserService
 import com.a_pags_server.application.service.serviceModule
+import com.a_pags_server.domain.model.modelModule
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
+import io.ktor.features.CORS
 import io.ktor.response.*
 import io.ktor.features.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.jackson.jackson
 import io.ktor.routing.get
 import io.ktor.routing.route
@@ -19,13 +23,18 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    install(CORS) {
+        listOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Post, HttpMethod.Delete).forEach { method(it) }
+        header(HttpHeaders.AccessControlAllowOrigin)
+        host("localhost:8080")
+    }
     install(ContentNegotiation) {
         jackson {
             configure(SerializationFeature.INDENT_OUTPUT, true)
         }
     }
     install(Koin) {
-        modules(serviceModule)
+        modules(serviceModule, modelModule)
     }
     Database.connect(
         "jdbc:postgresql://localhost:5432/a_pags_backend_development",
@@ -41,13 +50,10 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(users)
             }
             get("/{id}") {
-                val id: Int = Integer.parseInt(call.parameters["id"])
+                val id: Long = call.parameters["id"]?.toLong() ?: 0L
                 val user = userService.getUser(id)
                 call.respond(user)
             }
-        }
-        get("/") {
-            call.respondText("Hello, World")
         }
         get("/ping") {
             call.respondText("Pong")
